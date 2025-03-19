@@ -12,9 +12,9 @@ public class CsvExporter extends ExportVisitor {
         this.filename_ = filename.endsWith(".csv") ? filename : filename + ".csv";
     }
 
+    @Override
     public void exportToFile() {
         try (FileWriter writer = new FileWriter(filename_)) {
-            writer.append("id,type,amount,date,bankAccountId,categoryId\n");
             writer.write(getExportData());
             System.out.println("Данные успешно экспортированы в " + filename_);
         } catch (IOException e) {

@@ -172,7 +172,7 @@ public class Main {
                 visitor = new CsvExporter(filename);
                 break;
             case "json":
-                visitor = new JSONExporter(filename);
+                visitor = new JSONExporter(filename + ".json");
                 break;
             case "yaml":
                 visitor = new YamlExporter(filename);
@@ -182,19 +182,13 @@ public class Main {
                 return;
         }
 
-        for (BankAccount acc : fassade.getAllBankAccounts())
-            acc.accept(visitor);
-        for (Category cat : fassade.getAllCategories())
-            cat.accept(visitor);
-        for (Operation op : fassade.getAllOperations())
-            op.accept(visitor);
+        fassade.getAllBankAccounts().forEach(visitor::visit);
+        fassade.getAllCategories().forEach(visitor::visit);
+        fassade.getAllOperations().forEach(visitor::visit);
 
-        if (visitor instanceof CsvExporter)
-            ((CsvExporter) visitor).exportToFile();
-        else if (visitor instanceof JSONExporter)
-            ((JSONExporter) visitor).exportToFile();
-        else ((YamlExporter) visitor).exportToFile();
+        visitor.exportToFile();
     }
+
 
     private static void importData(Scanner scanner, FinanceFassade fassade) {
         System.out.print("Введите имя файла для импорта: ");
@@ -202,14 +196,14 @@ public class Main {
 
         try {
             String fileExtension = filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
-            String content = new String(Files.readAllBytes(Paths.get(filename)));
 
             switch (fileExtension) {
                 case "csv":
                     ImportFileHandler.importFromCsv(filename, fassade);
                     break;
                 case "json":
-                    ImportFileHandler.importFromJson(content, fassade);
+                    String jsonContent = new String(Files.readAllBytes(Paths.get(filename)));
+                    ImportFileHandler.importFromJson(jsonContent, fassade);
                     break;
                 case "yaml":
                 case "yml":
@@ -225,7 +219,6 @@ public class Main {
             System.out.println("Ошибка при чтении файла: " + e.getMessage());
         }
     }
-
 
 
     private static int getIntInput(Scanner scanner, String message) {

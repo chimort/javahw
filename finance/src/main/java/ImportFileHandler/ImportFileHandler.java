@@ -3,11 +3,11 @@ package ImportFileHandler;
 import Entities.BankAccount;
 import Entities.Category;
 import Entities.Operation;
+import Entities.DataWrapper;
 import FinanceFassade.FinanceFassade;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.FileReader;
@@ -56,18 +56,8 @@ public class ImportFileHandler {
 
     public static void importFromCsv(String filename, FinanceFassade fassade) throws IOException {
         CsvMapper csvMapper = new CsvMapper();
-        CsvSchema schema = CsvSchema.builder()
-                .addColumn("entityType")
-                .addColumn("id")
-                .addColumn("nameOrType")
-                .addColumn("amountOrBalance")
-                .addColumn("dateOrNull")
-                .addColumn("bankAccountIdOrNull")
-                .addColumn("categoryIdOrNull")
-                .setUseHeader(true)
-                .build();
+        CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
-        // Читаем CSV как List<Object>, а потом кастуем к Map<String, Object>
         List<Object> rawRows = csvMapper.readerFor(Map.class)
                 .with(schema)
                 .readValues(Paths.get(filename).toFile())
@@ -119,6 +109,11 @@ public class ImportFileHandler {
     }
 
     private static void addDataToFassade(DataWrapper data, FinanceFassade fassade) {
+        if (data == null) {
+            System.out.println("Ошибка: Пустые данные при импорте.");
+            return;
+        }
+
         for (BankAccount acc : data.getBankAccounts()) {
             fassade.createBankAccount(acc.getId(), acc.getName(), acc.getBalance());
         }
@@ -137,14 +132,4 @@ public class ImportFileHandler {
         System.out.println("Импорт завершён.");
     }
 
-
-    static class DataWrapper {
-        private List<BankAccount> bankAccounts;
-        private List<Category> categories;
-        private List<Operation> operations;
-
-        public List<BankAccount> getBankAccounts() { return bankAccounts; }
-        public List<Category> getCategories() { return categories; }
-        public List<Operation> getOperations() { return operations; }
-    }
 }

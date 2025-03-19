@@ -6,9 +6,11 @@ import Entities.Operation;
 
 import java.time.format.DateTimeFormatter;
 
-public class ExportVisitor implements Visitor {
+public abstract class ExportVisitor implements Visitor {
     protected final StringBuilder export_data_ = new StringBuilder();
     protected final DateTimeFormatter date_formatter_ = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+    public abstract void exportToFile();
 
     @Override
     public void visit(BankAccount account) {
