@@ -11,11 +11,7 @@ import Entities.Category.CategoryType;
 import DI.AppModule;
 import Entities.Operation;
 import Entities.Operation.OperationType;
-import Commands.Command;
-import Commands.CommandDecorator;
-import Commands.CreateBankAccountCommand;
-import Commands.CreateCategoryCommand;
-import Commands.CreateOperationCommand;
+import Commands.*;
 import Database.DbProxy;
 import FinanceFassade.FinanceFassade;
 import Visitor.ExportVisitor;
@@ -25,7 +21,6 @@ import Exporters.YamlExporter;
 import ImportFileHandler.ImportFileHandler;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
 
 public class Main {
     public static void main(String[] args) {
@@ -46,6 +41,12 @@ public class Main {
             System.out.println("6. Показать список операций");
             System.out.println("7. Экспорт данных");
             System.out.println("8. Импорт данных");
+            System.out.println("9. Редактировать счёт");
+            System.out.println("10. Редактировать категорию");
+            System.out.println("11. Редактировать операцию");
+            System.out.println("12. Удалить счёт");
+            System.out.println("13. Удалить категорию");
+            System.out.println("14. Удалить операцию");
             System.out.println("0. Выход");
             System.out.print("Выберите опцию: ");
 
@@ -77,6 +78,24 @@ public class Main {
                 case 8:
                     importData(scanner, fassade);
                     break;
+                case 9:
+                    updateBankAccount(scanner, fassade);
+                    break;
+                case 10:
+                    updateCategory(scanner, fassade);
+                    break;
+                case 11:
+                    updateOperation(scanner, fassade);
+                    break;
+                case 12:
+                    deleteBankAccount(scanner, fassade);
+                    break;
+                case 13:
+                    deleteCategory(scanner, fassade);
+                    break;
+                case 14:
+                    deleteOperation(scanner, fassade);
+                    break;
                 default:
                     System.out.println("Неверная опция. Попробуйте снова.");
             }
@@ -84,6 +103,83 @@ public class Main {
 
         scanner.close();
         System.out.println("Выход из приложения.");
+    }
+
+    private static void updateBankAccount(Scanner scanner, FinanceFassade fassade) {
+        while (true) {
+            try {
+                int accountId = getIntInput(scanner, "Введите ID счёта для редактирования: ");
+                String accountName = getStringInput(scanner, "Введите новое название счёта: ");
+                double balance = getDoubleInput(scanner, "Введите новый баланс: ");
+
+                Command updateCmd = new UpdateCommand(fassade, accountId,"account", accountName, balance);
+                Command timedUpdate = new CommandDecorator(updateCmd);
+                timedUpdate.execute();
+
+                break;
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    private static void updateCategory(Scanner scanner, FinanceFassade fassade) {
+        while (true) {
+            try {
+                int categoryId = getIntInput(scanner, "Введите ID категории для редактирования: ");
+                String categoryName = getStringInput(scanner, "Введите новое название категории: ");
+
+                Command updateCmd = new UpdateCommand(fassade, categoryId, "category", categoryName);
+                Command timedUpdate = new CommandDecorator(updateCmd);
+                timedUpdate.execute();
+
+                break;
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    private static void updateOperation(Scanner scanner, FinanceFassade fassade) {
+        while (true) {
+            try {
+                int operationId = getIntInput(scanner, "Введите ID операции для редактирования: ");
+                OperationType opType = getEnumInput(scanner, "Введите новый тип операции (INCOME/CONSUMPTION): ", OperationType.class);
+                int accId = getIntInput(scanner, "Введите новый ID счёта: ");
+                double amount = getDoubleInput(scanner, "Введите новую сумму операции: ");
+                LocalDate date = getDateInput(scanner, "Введите новую дату операции (dd-MM-yyyy): ");
+                int catId = getIntInput(scanner, "Введите новый ID категории: ");
+
+                Command updateCmd = new UpdateCommand(fassade, operationId, "operation", opType, amount, date, accId, catId);
+                Command timedUpdate = new CommandDecorator(updateCmd);
+                timedUpdate.execute();
+
+                break;
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    private static void deleteBankAccount(Scanner scanner, FinanceFassade fassade) {
+        int accountId = getIntInput(scanner, "Введите ID счёта для удаления: ");
+        Command deleteCmd = new DeleteCommand(fassade, accountId, "account");
+        Command timedDelete = new CommandDecorator(deleteCmd);
+        timedDelete.execute();
+    }
+
+    private static void deleteCategory(Scanner scanner, FinanceFassade fassade) {
+        int categoryId = getIntInput(scanner, "Введите ID категории для удаления: ");
+        Command deleteCmd = new DeleteCommand(fassade, categoryId, "category");
+        Command timedDelete = new CommandDecorator(deleteCmd);
+        timedDelete.execute();
+    }
+
+    private static void deleteOperation(Scanner scanner, FinanceFassade fassade) {
+        int operationId = getIntInput(scanner, "Введите ID операции для удаления: ");
+        Command deleteCmd = new DeleteCommand(fassade, operationId, "operation");
+        Command timedDelete = new CommandDecorator(deleteCmd);
+        timedDelete.execute();
     }
 
     private static void createBankAccount(Scanner scanner, FinanceFassade fassade) {

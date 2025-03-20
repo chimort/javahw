@@ -4,13 +4,15 @@ import Visitor.ExportVisitor;
 
 
 public class Category {
+
+
     public enum CategoryType {
         INCOME,
         CONSUMPTION
     }
 
     private final int id_;
-    private final CategoryType type_;
+    private CategoryType type_;
     private String name_;
 
     public Category(int id, CategoryType type, String name) {
@@ -24,6 +26,7 @@ public class Category {
     public String getName() { return name_; }
 
     public void setName(String name) { this.name_ = name; }
+    public void setCategoryType(CategoryType type) {this.type_ = type;}
 
     public void accept(ExportVisitor visitor) {
         visitor.visit(this);

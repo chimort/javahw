@@ -20,6 +20,13 @@ public class BankAccount {
 
     public void setName(String name) { this.name_ = name; }
 
+    public void setBalance(double newBalance) {
+        if (newBalance < 0) {
+            throw new IllegalArgumentException("Баланс не может быть отрицательным");
+        }
+        this.balance_ = newBalance;
+    }
+
     public void deposit(double amount) {
         if (amount < 0) {
             throw new IllegalArgumentException("Сумма депозита не может быть отрицательной");
