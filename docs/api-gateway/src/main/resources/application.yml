@@ -1,0 +1,35 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: file-store
+          uri: http://localhost:8081
+          predicates:
+            - Path=/files/**
+          filters:
+            - StripPrefix=1
+
+        - id: file-analysis
+          uri: http://localhost:8082
+          predicates:
+            - Path=/analysis/**
+          filters:
+            - StripPrefix=1
+
+        - id: swagger-file-store
+          uri: http://localhost:8081
+          predicates:
+            - Path=/swagger/files/swagger-ui.html
+            - Path=/swagger/files/v3/api-docs/**
+            - Path=/swagger/files/webjars/**
+          filters:
+            - StripPrefix=2
+
+        - id: swagger-analysis
+          uri: http://localhost:8082
+          predicates:
+            - Path=/swagger/analysis/swagger-ui.html
+            - Path=/swagger/analysis/v3/api-docs/**
+            - Path=/swagger/analysis/webjars/**
+          filters:
+            - StripPrefix=2
