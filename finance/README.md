@@ -21,7 +21,7 @@
 - **Information Expert (GRASP)**:
     - Каждая сущность (`BankAccount`, `Category`, `Operation`) отвечает за свою информацию, что позволяет легко добавлять новые атрибуты.
 
-- **Controller (GRASP)**:
+- **AnalysisController (GRASP)**:
     - `FinanceFassade` выступает в роли контроллера, обрабатывающего команды пользователя.
 
 ## 2. Используемые паттерны GoF
